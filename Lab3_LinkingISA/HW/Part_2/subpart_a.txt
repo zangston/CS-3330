@@ -1,0 +1,15 @@
+x86 instruction:
+movq 0x1234(%rax, %rbx, 8), %rcx
+# move rax + (8 * rbx) + 0x1234 to rcx
+
+translation:
+# zero out RCX
+xorq %rcx, %rcx
+# accumulate RAX + 8RBX into RCX
+addq %rbx, %rcx
+shl %rcx, 3
+addq %rax, %rcx
+# overwrite RCX with the value in memory that RCX + 0x1234 points to
+mrmovq $0x1234(%rcx), %rcx
+
+

@@ -1,0 +1,10 @@
+0x000:                      | start:
+0x000: 30f06400000000000000 | 	irmovq $100, %rax
+0x00a: 30f30100000000000000 | 	irmovq $1, %rbx
+0x014: 30f10300000000000000 | 	irmovq $3, %rcx
+0x01e: 30f20400000000000000 | 	irmovq $4, %rdx
+0x028:                      | loop:
+0x028: 6130                 | 	subq %rbx, %rax
+0x02a: 6021                 | 	addq %rdx, %rcx
+0x02c: 762800000000000000   | 	jg loop
+0x035: 00                   | 	halt

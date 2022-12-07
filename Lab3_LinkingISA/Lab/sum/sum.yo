@@ -1,0 +1,23 @@
+0x000:                      | sum:
+0x000: 30f80800000000000000 | 	irmovq $8, %r8
+                            |         # rsi (count in bytes) = rsi (count) * 8
+0x00a: 6066                 | 	addq %rsi, %rsi
+0x00c: 6066                 | 	addq %rsi, %rsi
+0x00e: 6066                 | 	addq %rsi, %rsi
+                            |         # rsi (address of end) = rsi + rdi (array base address)
+0x010: 6076                 | 	addq %rdi, %rsi
+                            |         # rax (sum) = 0
+0x012: 6300                 |         xorq %rax, %rax
+0x014:                      | sum_loop:
+                            |         # end = end - 8
+0x014: 6186                 | 	subq %r8, %rsi
+                            |         # if (end - base < 0 AKA end < base) break
+0x016: 2069                 |         rrmovq %rsi, %r9
+0x018: 6179                 |         subq %rdi, %r9
+0x01a: 723800000000000000   |         jl end_sum_loop
+                            |         # sum += *end
+0x023: 50960000000000000000 |         mrmovq (%rsi), %r9
+0x02d: 6090                 |         addq %r9, %rax
+0x02f: 701400000000000000   |         jmp sum_loop
+0x038:                      | end_sum_loop:
+0x038: 90                   |         ret

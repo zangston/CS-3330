@@ -1,0 +1,10 @@
+start:
+	irmovq $100, %rax
+	irmovq $1, %rbx
+	irmovq $3, %rcx
+	irmovq $4, %rdx
+loop:
+	subq %rbx, %rax
+	addq %rdx, %rcx
+	jg loop
+	halt

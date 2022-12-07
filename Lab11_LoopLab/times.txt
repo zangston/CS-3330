@@ -1,0 +1,12 @@
+times.txt
+Comparison of benchmark tests of various implementations of summation loop utilizing unrolling, multiple accumulators
+
+Version	      		Performance (Largest size tested n = 1048576, cycles/element)
+sum_clang_6		0.18
+sum_gcc_7		0.18
+sum_C			0.89
+sum_simple		0.84
+sum_unrolled2		0.66
+sum_unrolled4		0.66
+sum_multiple_accum	0.46
+sum_multiple_accum_C	0.36

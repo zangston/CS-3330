@@ -1,0 +1,12 @@
+0x000:                      | main:
+0x000: 30f71e00000000000000 |         irmovq $array, %rdi
+0x00a: 30f60400000000000000 |         irmovq $4, %rsi
+0x014: 800a00000000000000   |         call beef
+                            | # original call instruction was for sum, for future reference
+0x01d: 00                   |         halt
+                            | 
+0x01e:                      | array:
+0x01e: 0000341200003412     |         .quad 0x1234000012340000
+0x026: 3412000034120000     |         .quad 0x0000123400001234
+0x02e: 0000214300002143     |         .quad 0x4321000043210000
+0x036: 2143000021430000     |         .quad 0x0000432100004321

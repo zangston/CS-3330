@@ -1,0 +1,294 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "defs.h"
+
+/* 
+ * Please fill in the following struct with your name and the name you'd like to appear on the scoreboard
+ */
+who_t who = {
+    "The Rizzard of Oz",           /* Scoreboard name */
+
+    "Winston Zhang",   /* Full name */
+    "wyz5rge@virginia.edu",  /* Email address */
+};
+
+/***************
+ * ROTATE KERNEL
+ ***************/
+
+/******************************************************
+ * Your different versions of the rotate kernel go here
+ ******************************************************/
+
+/* 
+ * naive_rotate - The naive baseline version of rotate 
+ */
+char naive_rotate_descr[] = "naive_rotate: Naive baseline implementation";
+void naive_rotate(int dim, pixel *src, pixel *dst) 
+{
+    for (int i = 0; i < dim; i++)
+	for (int j = 0; j < dim; j++)
+	    dst[RIDX(dim-1-j, i, dim)] = src[RIDX(i, j, dim)];
+}
+/* 
+ * rotate - Your current working version of rotate
+ *          Our supplied version simply calls naive_rotate
+ */
+
+/*
+char another_rotate_descr[] = "another_rotate: Another version of rotate";
+void another_rotate(int dim, pixel *src, pixel *dst) 
+{
+    naive_rotate(dim, src, dst);
+}
+*/
+
+/* ======================================================================================
+ * UNROLLING OPTIMIZATIONS
+ * ======================================================================================
+ */
+
+char rotate_unroll_4_descr[] = "rotate_unroll_4: Loop unrolling optimzation with 4 instructions per iteration";
+void rotate_unroll_4(int dim, pixel *src, pixel *dst)
+{
+  for (int i = 0; i < dim; i++)
+    {
+      for (int j = 0; j < dim; j += 4)
+	{
+	  dst[RIDX(dim - 1 - j, i, dim)] = src[RIDX(i, j, dim)];
+	  dst[RIDX(dim - 2 - j, i, dim)] = src[RIDX(i, j + 1, dim)];
+	  dst[RIDX(dim - 3 - j, i, dim)] = src[RIDX(i, j + 2, dim)];
+	  dst[RIDX(dim - 4 - j, i, dim)] = src[RIDX(i, j + 3, dim)];
+    	}
+    }
+}
+
+char rotate_unroll_8_descr[] = "rotate_unroll_8: Loop unrolling w/ 8 per iter";
+void rotate_unroll_8(int dim, pixel *src, pixel *dst)
+{
+  for (int i = 0; i < dim; i++)
+    {
+      for (int j = 0; j < dim; j += 8)
+	{
+	  dst[RIDX(dim - 1 - j, i, dim)] = src[RIDX(i, j, dim)];
+          dst[RIDX(dim - 2 - j, i, dim)] = src[RIDX(i, j + 1, dim)];
+          dst[RIDX(dim - 3 - j, i, dim)] = src[RIDX(i, j + 2, dim)];
+          dst[RIDX(dim - 4 - j, i, dim)] = src[RIDX(i, j + 3, dim)];
+	  dst[RIDX(dim - 5 - j, i, dim)] = src[RIDX(i, j + 4, dim)];
+          dst[RIDX(dim - 6 - j, i, dim)] = src[RIDX(i, j + 5, dim)];
+          dst[RIDX(dim - 7 - j, i, dim)] = src[RIDX(i, j + 6, dim)];
+          dst[RIDX(dim - 8 - j, i, dim)] = src[RIDX(i, j + 7, dim)];
+	}
+    }
+}
+
+char rotate_unroll_16_descr[] = "rotate_unroll_16: Loop unrolling w/ 16 per iter";
+void rotate_unroll_16(int dim, pixel *src, pixel *dst)
+{
+  for (int i = 0; i < dim; i++)
+    {
+      for (int j = 0; j < dim; j += 16)
+	{
+	  dst[RIDX(dim - 1 - j, i, dim)] = src[RIDX(i, j, dim)];
+          dst[RIDX(dim - 2 - j, i, dim)] = src[RIDX(i, j + 1, dim)];
+          dst[RIDX(dim - 3 - j, i, dim)] = src[RIDX(i, j + 2, dim)];
+          dst[RIDX(dim - 4 - j, i, dim)] = src[RIDX(i, j + 3, dim)];
+          dst[RIDX(dim - 5 - j, i, dim)] = src[RIDX(i, j + 4, dim)];
+          dst[RIDX(dim - 6 - j, i, dim)] = src[RIDX(i, j + 5, dim)];
+          dst[RIDX(dim - 7 - j, i, dim)] = src[RIDX(i, j + 6, dim)];
+          dst[RIDX(dim - 8 - j, i, dim)] = src[RIDX(i, j + 7, dim)];
+	  dst[RIDX(dim - 9 - j, i, dim)] = src[RIDX(i, j + 8, dim)];
+          dst[RIDX(dim - 10 - j, i, dim)] = src[RIDX(i, j + 9, dim)];
+          dst[RIDX(dim - 11 - j, i, dim)] = src[RIDX(i, j + 10, dim)];
+          dst[RIDX(dim - 12 - j, i, dim)] = src[RIDX(i, j + 11, dim)];
+          dst[RIDX(dim - 13 - j, i, dim)] = src[RIDX(i, j + 12, dim)];
+          dst[RIDX(dim - 14 - j, i, dim)] = src[RIDX(i, j + 13, dim)];
+          dst[RIDX(dim - 15 - j, i, dim)] = src[RIDX(i, j + 14, dim)];
+          dst[RIDX(dim - 16 - j, i, dim)] = src[RIDX(i, j + 15, dim)];
+	}
+    }
+}
+
+/* Ideally this shouldn't be the most efficient unrolling optimization because we're
+ *         operating on vector sizes that are multiples of 32
+ */
+char rotate_unroll_32_descr[] = "rotate_unroll_32: Loop unrolling w/ 32 per iter";
+void rotate_unroll_32(int dim, pixel *src, pixel *dst)
+{
+  for (int i = 0; i < dim; i++)
+    {
+      for (int j = 0; j < dim; j += 32)
+	{
+	  // HHHHHHOLY SHITTTTTTT
+	  dst[RIDX(dim - 1 - j, i, dim)] = src[RIDX(i, j, dim)];
+          dst[RIDX(dim - 2 - j, i, dim)] = src[RIDX(i, j + 1, dim)];
+          dst[RIDX(dim - 3 - j, i, dim)] = src[RIDX(i, j + 2, dim)];
+          dst[RIDX(dim - 4 - j, i, dim)] = src[RIDX(i, j + 3, dim)];
+          dst[RIDX(dim - 5 - j, i, dim)] = src[RIDX(i, j + 4, dim)];
+          dst[RIDX(dim - 6 - j, i, dim)] = src[RIDX(i, j + 5, dim)];
+          dst[RIDX(dim - 7 - j, i, dim)] = src[RIDX(i, j + 6, dim)];
+          dst[RIDX(dim - 8 - j, i, dim)] = src[RIDX(i, j + 7, dim)];
+          dst[RIDX(dim - 9 - j, i, dim)] = src[RIDX(i, j + 8, dim)];
+          dst[RIDX(dim - 10 - j, i, dim)] = src[RIDX(i, j + 9, dim)];
+          dst[RIDX(dim - 11 - j, i, dim)] = src[RIDX(i, j + 10, dim)];
+          dst[RIDX(dim - 12 - j, i, dim)] = src[RIDX(i, j + 11, dim)];
+          dst[RIDX(dim - 13 - j, i, dim)] = src[RIDX(i, j + 12, dim)];
+          dst[RIDX(dim - 14 - j, i, dim)] = src[RIDX(i, j + 13, dim)];
+          dst[RIDX(dim - 15 - j, i, dim)] = src[RIDX(i, j + 14, dim)];
+          dst[RIDX(dim - 16 - j, i, dim)] = src[RIDX(i, j + 15, dim)];
+	  dst[RIDX(dim - 17 - j, i, dim)] = src[RIDX(i, j + 16, dim)];
+          dst[RIDX(dim - 18 - j, i, dim)] = src[RIDX(i, j + 17, dim)];
+          dst[RIDX(dim - 19 - j, i, dim)] = src[RIDX(i, j + 18, dim)];
+          dst[RIDX(dim - 20 - j, i, dim)] = src[RIDX(i, j + 19, dim)];
+          dst[RIDX(dim - 21 - j, i, dim)] = src[RIDX(i, j + 20, dim)];
+          dst[RIDX(dim - 22 - j, i, dim)] = src[RIDX(i, j + 21, dim)];
+          dst[RIDX(dim - 23 - j, i, dim)] = src[RIDX(i, j + 22, dim)];
+          dst[RIDX(dim - 24 - j, i, dim)] = src[RIDX(i, j + 23, dim)];
+          dst[RIDX(dim - 25 - j, i, dim)] = src[RIDX(i, j + 24, dim)];
+          dst[RIDX(dim - 26 - j, i, dim)] = src[RIDX(i, j + 25, dim)];
+          dst[RIDX(dim - 27 - j, i, dim)] = src[RIDX(i, j + 26, dim)];
+          dst[RIDX(dim - 28 - j, i, dim)] = src[RIDX(i, j + 27, dim)];
+          dst[RIDX(dim - 29 - j, i, dim)] = src[RIDX(i, j + 28, dim)];
+          dst[RIDX(dim - 30 - j, i, dim)] = src[RIDX(i, j + 29, dim)];
+          dst[RIDX(dim - 31 - j, i, dim)] = src[RIDX(i, j + 30, dim)];
+          dst[RIDX(dim - 32 - j, i, dim)] = src[RIDX(i, j + 31, dim)];
+	}
+    }
+}
+
+/* =======================================================================
+ * BLOCKING OPTIMIZATIONS
+ * =======================================================================
+ */
+
+char rotate_blocking_4_descr[] = "rotate_blocking_4: rotate by blocks of 4 elements";
+void rotate_blocking_4(int dim, pixel *src, pixel *dst)
+{
+  int i, j, ii, jj;
+  
+  // whoops i fucked up the variable naming lmfao
+  /*
+  for (i = 0; i < dim; i += 32)
+    {
+      for (j = 0; j < dim; j += 32)
+	{
+	  for (ii = i; ii < i + 32; ii++)
+	    {
+	      for (jj = j; jj < j + 32; j++)
+		{
+		  dst[RIDX(dim - 1 - jj, ii, dim)] = src[RIDX(ii, jj, dim)];
+		  dst[RIDX(dim - 2 - jj, ii, dim)] = src[RIDX(ii, jj + 1, dim)];
+		  dst[RIDX(dim - 3 - jj, ii, dim)] = src[RIDX(ii, jj + 2, dim)];
+		  dst[RIDX(dim - 4 - jj, ii, dim)] = src[RIDX(ii, jj + 3, dim)];
+		} 
+	    }
+	}
+    }*/
+
+  for (ii = 0; ii < dim; ii += 32)
+    {
+      for (jj = 0; jj < dim; jj += 32)
+	{
+	  for(i = ii; i < ii + 32; i++)
+	    {
+	      for(j = jj; j < jj + 32; j += 4)
+		{
+		  dst[RIDX(dim - 1 - j, i, dim)] = src[RIDX(i, j, dim)];
+     		  dst[RIDX(dim - 2 - j, i, dim)] = src[RIDX(i, j + 1, dim)];
+		  dst[RIDX(dim - 3 - j, i, dim)] = src[RIDX(i, j + 2, dim)];
+		  dst[RIDX(dim - 4 - j, i, dim)] = src[RIDX(i, j + 3, dim)];
+		}
+	    }
+	}
+    }
+}
+
+char rotate_blocking_16_descr[] = "rotate_blocking_16: rotate by blocks of 16 elements";
+void rotate_blocking_16(int dim, pixel *src, pixel *dst)
+{
+  int ii, jj, i, j;
+
+  for (ii = 0; ii < dim; ii += 16)
+    {
+      for (jj = 0; jj < dim; jj += 16)
+	{
+	  for (i = ii; i < ii + 16; i += 4)
+	    {
+	      for (j = jj; j < jj + 16; j += 4)
+		{
+		  // holy shit this is so much code
+		  dst[RIDX(dim - 1 - j, i, dim)] = src[RIDX(i, j, dim)];
+                  dst[RIDX(dim - 2 - j, i, dim)] = src[RIDX(i, j + 1, dim)];
+                  dst[RIDX(dim - 3 - j, i, dim)] = src[RIDX(i, j + 2, dim)];
+                  dst[RIDX(dim - 4 - j, i, dim)] = src[RIDX(i, j + 3, dim)];
+		  dst[RIDX(dim - 1 - j, i + 1, dim)] = src[RIDX(i + 1, j, dim)];
+                  dst[RIDX(dim - 2 - j, i + 1, dim)] = src[RIDX(i + 1, j + 1, dim)];
+                  dst[RIDX(dim - 3 - j, i + 1, dim)] = src[RIDX(i + 1, j + 2, dim)];
+                  dst[RIDX(dim - 4 - j, i + 1, dim)] = src[RIDX(i + 1, j + 3, dim)];
+		  dst[RIDX(dim - 1 - j, i + 2, dim)] = src[RIDX(i + 2, j, dim)];
+                  dst[RIDX(dim - 2 - j, i + 2, dim)] = src[RIDX(i + 2, j + 1, dim)];
+                  dst[RIDX(dim - 3 - j, i + 2, dim)] = src[RIDX(i + 2, j + 2, dim)];
+                  dst[RIDX(dim - 4 - j, i + 2, dim)] = src[RIDX(i + 2, j + 3, dim)];
+		  dst[RIDX(dim - 1 - j, i + 3, dim)] = src[RIDX(i + 3, j, dim)];
+                  dst[RIDX(dim - 2 - j, i + 3, dim)] = src[RIDX(i + 3, j + 1, dim)];
+                  dst[RIDX(dim - 3 - j, i + 3, dim)] = src[RIDX(i + 3, j + 2, dim)];
+                  dst[RIDX(dim - 4 - j, i + 3, dim)] = src[RIDX(i + 3, j + 3, dim)];
+		}
+	    }
+	}
+    }
+}
+
+char rotate_blocking_antialias_desc[] = "rotate_antialias: Implementation using blocking and intermediary values for antialiasing";
+void rotate_blocking_antialias(int dim, pixel *src, pixel *dst)
+{
+  int ii, jj, i, j;
+  int valSRC, valDST;
+  int sub;
+
+  for (ii = 0; ii < dim; ii += 32)
+    {
+      for (jj = 0; jj < dim; jj += 32)
+	{
+	  for(i = ii; i < ii + 32; i++)
+	    {
+	      valSRC = i * dim;
+	      for(j = jj; j < jj + 32; j += 4)
+		{
+		  valDST = (dim - 1 - j) * dim + i;
+		  sub = dim; 
+
+		  dst[valDST] = src[valSRC + j];
+		  dst[valDST - sub] = src[valSRC + j + 1];		  
+		  dst[valDST - 2 * sub] = src[valSRC + j + 2];
+		  dst[valDST - 3 * sub] = src[valSRC + j + 3];
+		}
+	    }
+	}
+    }
+}
+
+/*********************************************************************
+ * register_rotate_functions - Register all of your different versions
+ *     of the rotate function by calling the add_rotate_function() for
+ *     each test function. When you run the benchmark program, it will
+ *     test and report the performance of each registered test
+ *     function.  
+ *********************************************************************/
+
+void register_rotate_functions() {
+    add_rotate_function(&naive_rotate, naive_rotate_descr);
+    // add_rotate_function(&another_rotate, another_rotate_descr);
+
+    // Unrolling optimizations
+    add_rotate_function(&rotate_unroll_4, rotate_unroll_4_descr);
+    add_rotate_function(&rotate_unroll_8, rotate_unroll_8_descr);   // note: it seems like this unrolling implementation sees the best speedup
+    add_rotate_function(&rotate_unroll_16, rotate_unroll_16_descr);
+    add_rotate_function(&rotate_unroll_32, rotate_unroll_32_descr);
+ 
+    // Blocking optimizations
+    add_rotate_function(&rotate_blocking_4, rotate_blocking_4_descr);
+    add_rotate_function(&rotate_blocking_16, rotate_blocking_16_descr);
+
+    add_rotate_function(&rotate_blocking_antialias, rotate_blocking_antialias_desc);
+}

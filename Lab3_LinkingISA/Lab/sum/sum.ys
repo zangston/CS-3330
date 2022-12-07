@@ -1,0 +1,23 @@
+sum:
+	irmovq $8, %r8
+        # rsi (count in bytes) = rsi (count) * 8
+	addq %rsi, %rsi
+	addq %rsi, %rsi
+	addq %rsi, %rsi
+        # rsi (address of end) = rsi + rdi (array base address)
+	addq %rdi, %rsi
+        # rax (sum) = 0
+        xorq %rax, %rax
+sum_loop:
+        # end = end - 8
+	subq %r8, %rsi
+        # if (end - base < 0 AKA end < base) break
+        rrmovq %rsi, %r9
+        subq %rdi, %r9
+        jl end_sum_loop
+        # sum += *end
+        mrmovq (%rsi), %r9
+        addq %r9, %rax
+        jmp sum_loop
+end_sum_loop:
+        ret

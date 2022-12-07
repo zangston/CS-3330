@@ -1,0 +1,12 @@
+main:
+        irmovq $array, %rdi
+        irmovq $4, %rsi
+        call sum
+# original call instruction was for sum, for future reference
+        halt
+
+array:
+        .quad 0x1234000012340000
+        .quad 0x0000123400001234
+        .quad 0x4321000043210000
+        .quad 0x0000432100004321
